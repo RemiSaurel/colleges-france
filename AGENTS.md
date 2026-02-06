@@ -4,9 +4,38 @@ This document provides coding conventions and guidelines for AI agents working i
 
 ## Project Overview
 
-Educational data visualization app built with **Nuxt 4** (Vue 3.5, TypeScript strict mode), **Nuxt UI v4**, **MapLibre GL**, and **Tailwind CSS v4**. Displays ~7,000 French middle schools (collèges) on an interactive map, colored by IPS (Social Position Index) with DNB exam results.
+Educational data visualization app built with **Nuxt 4** (Vue 3.5, TypeScript strict mode), **Nuxt UI v4**, **MapLibre GL**, **Motion-v**, and **Tailwind CSS v4**. Displays ~7,000 French middle schools (collèges) on an interactive map, colored by IPS (Social Position Index) with DNB exam results.
 
-**Tech Stack:** Nuxt 4.3.0, Vue 3.5.27, TypeScript 5.9.3, Nuxt UI 4.4.0, MapLibre GL 5.17.0, pnpm 10.28.2
+**Tech Stack:** Nuxt 4.3.0, Vue 3.5.27, TypeScript 5.9.3, Nuxt UI 4.4.0, MapLibre GL 5.17.0, Motion-v 1.10.2, VueUse 14.2.0, pnpm 10.28.2
+
+## Available Skills
+
+When working on specific tasks, agents should leverage the following skills available in this environment:
+
+- **nuxt** - Core Nuxt 4+ patterns, server routes, middleware, composables, and configuration
+- **vue** - Vue 3 Composition API patterns, props/emits, composables, and best practices
+- **nuxt-ui** - Nuxt UI v4 components (Button, Modal, Form, Table, etc.) with Tailwind Variants theming
+- **motion** - Motion Vue (motion-v) animations, gestures, scroll effects, and layout transitions
+- **vueuse** / **vueuse-functions** - VueUse composables for reactive utilities, browser APIs, and sensors
+- **vue-best-practices** - Vue 3 TypeScript, vue-tsc, Volar, and component typing patterns
+- **antfu** - Anthony Fu's opinionated preferences and web development best practices
+
+Use the appropriate skill when working on features that match the skill's domain.
+
+## Learning from the Codebase
+
+Before implementing new features or making changes, agents should:
+
+1. **Explore similar patterns** - Use the Task tool with the explore agent to find existing implementations
+2. **Read actual code** - Look at real components, composables, and utilities to understand patterns
+3. **Follow established conventions** - Match the style, structure, and naming of existing code
+4. **Check for utilities** - Search for existing helper functions before creating new ones
+
+Example exploration prompts:
+- "Find all composables and their patterns"
+- "Show me how components handle loading states"
+- "Find all MapLibre map interactions"
+- "How are filters implemented?"
 
 ## Commands
 
@@ -74,11 +103,19 @@ export function formatFr(value: any) { ... }    // No type safety
 <script setup lang="ts">
 import type { CollegeFeature } from "~/utils/types";
 import { formatFr } from "~/utils/colors";
+import { motion } from "motion-v";
 
-// Props: Always use TypeScript generics
+// Props: Two patterns available
+// Pattern 1: With const (can't destructure)
 const props = defineProps<{
   college: CollegeFeature;
   onClose: () => void;
+}>();
+
+// Pattern 2: Destructuring (Vue 3.5+, use when props won't be passed to other functions)
+const { features, selectedIps } = defineProps<{
+  features: CollegeFeature[];
+  selectedIps: number | null;
 }>();
 
 // Emits: Type all events
@@ -97,16 +134,21 @@ const search = computed({
   set: value => emit("update:filters", { ...props.filters, search: value })
 });
 
-// Lifecycle
+// Lifecycle (cleanup inside onMounted)
 onMounted(() => {
   // Setup code
   onUnmounted(() => {
-    // Cleanup
+    // Cleanup inside onMounted for better organization
   });
 });
 
 // Watch with options
 watch(() => props.data, handler, { deep: true });
+
+// Expose methods to parent
+defineExpose({
+  publicMethod,
+});
 </script>
 
 <template>
@@ -115,6 +157,15 @@ watch(() => props.data, handler, { deep: true });
       :disabled="!isValid"
       @click="handleClick"
     />
+    
+    <!-- Motion-v for animations -->
+    <motion.div
+      :initial="{ opacity: 0 }"
+      :animate="{ opacity: 1 }"
+      :transition="{ duration: 0.3 }"
+    >
+      Content
+    </motion.div>
   </div>
 </template>
 
@@ -296,23 +347,45 @@ export default defineEventHandler(async () => {
 
 - **UI Library:** Nuxt UI v4 (Tailwind CSS v4 based)
 - **Colors:** Neutral zinc palette, light mode only
-- **Icons:** `i-lucide-*` from Lucide icon set
-- **Typography:** System font stack
+- **Icons:** `i-lucide-*` from Lucide icon set (`i-lucide-search`, `i-lucide-x`, etc.)
+- **Typography:** Instrument Sans from Google Fonts (configured via @nuxt/fonts)
 - **Style:** Minimalist, Linear.app-inspired
 
 **Component Usage:**
 ```vue
 <UButton color="neutral" variant="solid" size="md" icon="i-lucide-x" />
 
-<UInput v-model="search" placeholder="..." />
+<UInput v-model="search" icon="i-lucide-search" placeholder="..." />
 
-<UAccordion :items="accordionItems" />
+<USelectMenu v-model="regions" :items="options" multiple />
+
+<USlider v-model="ipsRange" :min="IPS_MIN" :max="IPS_MAX" :step="5" />
+
+<UAccordion type="multiple" :items="accordionItems" />
 
 <USlideover v-model:open="open" side="left" />
 
-<UTooltip text="Tooltip text">
-<button />
+<UTooltip text="Tooltip text" :content="{ side: 'top' }">
+  <button />
 </UTooltip>
+
+<UTabs v-model="activeTab" :items="tabItems" />
+```
+
+**Motion-v for Animations:**
+```vue
+<motion.div
+  :initial="{ opacity: 0, y: 20 }"
+  :animate="{ opacity: 1, y: 0 }"
+  :transition="{ duration: 0.3 }"
+/>
+
+<motion.div
+  :initial="{ scaleY: 0 }"
+  :animate="{ scaleY: 1 }"
+  :transition="{ type: 'spring', stiffness: 400, damping: 20 }"
+  :while-hover="{ scale: 1.10 }"
+/>
 ```
 
 ## Important Notes
@@ -320,11 +393,13 @@ export default defineEventHandler(async () => {
 1. **Always run lint before committing:** `pnpm lint`
 2. **No `any` types allowed** - strict TypeScript mode
 3. **Client-only code:** Wrap MapLibre and browser APIs in `<ClientOnly>`
-4. **Props pattern:** Use `const props = defineProps<{}>()` then access via `props.`
+4. **Props pattern:** Use `const props = defineProps<{}>()` then access via `props.` OR use destructuring pattern `const { prop1, prop2 } = defineProps<{}>()` (Vue 3.5+)
 5. **MapLibre objects:** Use `shallowRef` not `ref` for map instances
 6. **French UI text:** User-facing content in French, code comments in English
 7. **Type safety:** Handle null/undefined explicitly everywhere
 8. **CI checks:** Lint and typecheck must pass on every push
+9. **Motion-v imports:** Import `motion` from `"motion-v"` for animation components
+10. **App config:** UI colors configured in `app.config.ts` (primary: blue, neutral: zinc)
 
 ## Common Patterns Reference
 

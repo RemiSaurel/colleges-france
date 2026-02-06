@@ -1,60 +1,61 @@
-# Nuxt Starter Template
+# Carte des Collèges
 
-[![Nuxt UI](https://img.shields.io/badge/Made%20with-Nuxt%20UI-00DC82?logo=nuxt&labelColor=020420)](https://ui.nuxt.com)
+Interactive map visualizing ~7,000 French middle schools (collèges) with social position index (IPS) and DNB exam results.
 
-Use this template to get started with [Nuxt UI](https://ui.nuxt.com) quickly.
+## Stack
 
-- [Live demo](https://starter-template.nuxt.dev/)
-- [Documentation](https://ui.nuxt.com/docs/getting-started/installation/nuxt)
+- **Framework:** Nuxt 4.3 (Vue 3.5, TypeScript strict)
+- **UI:** Nuxt UI v4 (Tailwind CSS v4)
+- **Map:** MapLibre GL 5.17
+- **Animation:** Motion-v 1.10
+- **Package Manager:** pnpm 10.28
 
-<a href="https://starter-template.nuxt.dev/" target="_blank">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png">
-    <img alt="Nuxt Starter Template" src="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png">
-  </picture>
-</a>
-
-> The starter template for Vue is on https://github.com/nuxt-ui-templates/starter-vue.
-
-## Quick Start
-
-```bash [Terminal]
-npm create nuxt@latest -- -t github:nuxt-ui-templates/starter
-```
-
-## Deploy your own
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-name=starter&repository-url=https%3A%2F%2Fgithub.com%2Fnuxt-ui-templates%2Fstarter&demo-image=https%3A%2F%2Fui.nuxt.com%2Fassets%2Ftemplates%2Fnuxt%2Fstarter-dark.png&demo-url=https%3A%2F%2Fstarter-template.nuxt.dev%2F&demo-title=Nuxt%20Starter%20Template&demo-description=A%20minimal%20template%20to%20get%20started%20with%20Nuxt%20UI.)
-
-## Setup
-
-Make sure to install the dependencies:
+## Development
 
 ```bash
-pnpm install
+pnpm install      # Install dependencies
+pnpm dev          # Start dev server (localhost:3000)
+pnpm build        # Production build
+pnpm preview      # Preview production build
+pnpm lint         # Run ESLint
+pnpm typecheck    # Run TypeScript checks
 ```
 
-## Development Server
+## Data Sources
 
-Start the development server on `http://localhost:3000`:
+- **IPS (Indice de Position Sociale)** — Social position index from DEPP
+- **IVAC** — DNB success rates, grades, and value-added indicators
+- **Annuaire de l'éducation** — Geographic coordinates and school metadata
 
-```bash
-pnpm dev
+All data sourced from [data.education.gouv.fr](https://data.education.gouv.fr)
+
+## Architecture
+
+```
+app/
+├── components/    # Vue components (CollegeMap, FilterSidebar, etc.)
+├── composables/   # Composables (useColleges, useFilterSync)
+├── pages/         # Routes (index, about)
+├── utils/         # Types, colors, formatting utilities
+└── app.config.ts  # UI configuration
+
+server/
+├── api/           # API endpoints (colleges.get.ts)
+└── utils/         # Server utilities (education-api.ts)
 ```
 
-## Production
+## Key Features
 
-Build the application for production:
+- Real-time filtering by region, sector, IPS range, DNB metrics
+- URL-synced filters for shareable views
+- Interactive map with hover tooltips and smart zoom
+- Animated histogram visualization
+- Responsive sidebar with collapsible sections
 
-```bash
-pnpm build
-```
+## Contributing
 
-Locally preview production build:
+See [AGENTS.md](./AGENTS.md) for coding conventions and development guidelines.
 
-```bash
-pnpm preview
-```
+## License
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+MIT
