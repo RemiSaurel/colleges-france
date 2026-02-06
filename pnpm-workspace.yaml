@@ -1,0 +1,10 @@
+shellEmulator: true
+
+trustPolicy: no-downgrade
+
+ignoredBuiltDependencies:
+  - "@parcel/watcher"
+  - "@tailwindcss/oxide"
+  - esbuild
+  - unrs-resolver
+  - vue-demi
