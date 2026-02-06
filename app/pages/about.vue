@@ -124,7 +124,7 @@ const datasets = [
         </NuxtLink>
         ·
         Code source disponible sur <a
-          href="https://github.com"
+          href="https://github.com/remisaurel/colleges-france"
           target="_blank"
           class="text-highlighted underline"
         >GitHub</a>

@@ -162,7 +162,7 @@ function handleHighlight() {
                     trailing-icon="i-lucide-arrow-up-right"
                   />
                   <UButton
-                    to="https://github.com/remisaurel/educ"
+                    to="https://github.com/remisaurel/colleges-france"
                     target="_blank"
                     variant="link"
                     color="neutral"
