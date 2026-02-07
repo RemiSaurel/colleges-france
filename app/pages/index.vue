@@ -137,11 +137,12 @@ function handleHighlight() {
             <div class="flex-1 flex flex-col overflow-hidden">
               <!-- Scrollable content: Histogram + Filters -->
               <div class="flex-1 overflow-y-auto">
-                <div class="p-4 flex flex-col gap-6">
+                <div class="flex flex-col">
                   <!-- Histogram -->
                   <IpsHistogram
                     :features="filteredFeatures"
                     :selected-ips="selectedCollege?.properties.ips ?? null"
+                    class="border-b border-zinc-200 shrink-0 p-4"
                   />
 
                   <!-- Filters -->
@@ -149,6 +150,7 @@ function handleHighlight() {
                     :filters="filters"
                     :has-dnb-filters="hasDnbFilters"
                     :on-reset="resetFilters"
+                    class="p-4"
                     @update:filters="(newFilters) => Object.assign(filters, newFilters)"
                   />
                 </div>
@@ -175,6 +177,9 @@ function handleHighlight() {
                   label="Voir le code source"
                   trailing-icon="i-lucide-github"
                 />
+                <p class="text-xs text-zinc-400 px-2.5 pt-1 font-light tracking-tight">
+                  OpenStreetMap contributors © CARTO
+                </p>
               </div>
             </div>
           </div>
