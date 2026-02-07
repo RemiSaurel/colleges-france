@@ -81,11 +81,13 @@ const vaLabel = computed(() => {
   const va = p.value?.valeur_ajoutee;
   if (va === null || va === undefined || Number.isNaN(va))
     return null;
-  if (va > 2)
-    return { text: `+${va}`, color: "text-green-600", icon: "i-lucide-trending-up" };
-  if (va < -2)
-    return { text: `${va}`, color: "text-red-600", icon: "i-lucide-trending-down" };
-  return { text: `${va > 0 ? "+" : ""}${va}`, color: "text-zinc-500", icon: "i-lucide-minus" };
+  // Handle -0 case
+  const vaNum = va === 0 ? 0 : va;
+  if (vaNum > 2)
+    return { text: `+${vaNum}`, color: "text-green-600", icon: "i-lucide-trending-up" };
+  if (vaNum < -2)
+    return { text: `${vaNum}`, color: "text-red-600", icon: "i-lucide-trending-down" };
+  return { text: `${vaNum > 0 ? "+" : ""}${vaNum}`, color: "text-zinc-500", icon: "i-lucide-minus" };
 });
 
 // Stats computed properties
@@ -149,7 +151,7 @@ const cardSubtitle = computed(() => {
 <template>
   <div class="bg-white border border-zinc-200/90 rounded-2xl shadow-[0_4px_24px_-2px_rgba(0,0,0,0.08)] overflow-hidden">
     <!-- Header -->
-    <div class="flex items-start justify-between gap-2 px-5 py-4 border-b border-zinc-200/90 bg-gradient-to-b from-zinc-50/50 to-white">
+    <div class="flex items-start justify-between gap-2 px-5 py-4 border-b border-zinc-200/90 bg-linear-to-b from-zinc-50/50 to-white">
       <div class="min-w-0 flex-1">
         <h3 class="font-bold text-base truncate text-zinc-900">
           {{ cardTitle }}
@@ -394,7 +396,7 @@ const cardSubtitle = computed(() => {
                         'text-zinc-900': avgValeurAjoutee >= -2 && avgValeurAjoutee <= 2,
                       }"
                     >
-                      {{ avgValeurAjoutee > 0 ? '+' : '' }}<AnimatedNumber :value="avgValeurAjoutee" :decimals="0" />
+                      {{ avgValeurAjoutee > 0 ? '+' : '' }}<AnimatedNumber :value="avgValeurAjoutee" :decimals="1" />
                     </div>
 
                     <div class="text-xs uppercase tracking-wider text-zinc-500 mt-2 cursor-help">

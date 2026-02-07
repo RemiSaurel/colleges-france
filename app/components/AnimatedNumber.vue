@@ -13,9 +13,12 @@ const props = withDefaults(
   },
 );
 
-// Safe initial value
+// Safe initial value - normalize -0 to 0
 const safeValue = computed(() => {
-  return Number.isFinite(props.value) ? props.value as number : 0;
+  if (!Number.isFinite(props.value))
+    return 0;
+  const val = props.value as number;
+  return val === 0 ? 0 : val;
 });
 
 // Create motion value and spring
@@ -35,11 +38,11 @@ springValue.on("change", (v: number) => {
 
 // Format number with locale-specific separators
 function formatNumber(val: number): string {
-  if (!Number.isFinite(val)) {
+  if (!Number.isFinite(val))
     return "–";
-  }
-
-  return val.toLocaleString(props.locale, {
+  // Normalize -0 to 0
+  const normalizedVal = val === 0 ? 0 : val;
+  return normalizedVal.toLocaleString(props.locale, {
     minimumFractionDigits: props.decimals,
     maximumFractionDigits: props.decimals,
   });
@@ -48,16 +51,19 @@ function formatNumber(val: number): string {
 // Formatted display value
 const formattedValue = computed(() => {
   // Show dash if original value is null/undefined
-  if (props.value === null || props.value === undefined || !Number.isFinite(props.value)) {
+  if (props.value === null || props.value === undefined || !Number.isFinite(props.value))
     return "–";
-  }
-  return formatNumber(displayValue.value);
+  // Normalize -0 to 0 before formatting
+  const val = displayValue.value === 0 ? 0 : displayValue.value;
+  return formatNumber(val);
 });
 
 // Update motion value when prop changes
 watch(() => props.value, (newValue) => {
   if (Number.isFinite(newValue)) {
-    motionValue.set(newValue as number);
+    // Normalize -0 to 0
+    const normalizedValue = newValue === 0 ? 0 : newValue as number;
+    motionValue.set(normalizedValue);
   }
 }, { immediate: true });
 </script>

@@ -109,7 +109,7 @@ function handleHighlight() {
         >
           <div class="bg-white rounded-lg shadow-lg border border-zinc-200/80 h-full overflow-hidden flex flex-col">
             <!-- Header -->
-            <div class="flex items-center gap-2 px-4 h-14 border-b border-zinc-200/80 flex-shrink-0">
+            <div class="flex items-center gap-2 px-4 h-14 border-b border-zinc-200/80 shrink-0">
               <NuxtLink
                 to="https://remisaurel.dev"
                 target="_blank"
