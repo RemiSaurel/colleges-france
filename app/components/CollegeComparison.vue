@@ -86,7 +86,7 @@ const _candidatsWinner = computed(() => {
         <!-- College Headers -->
         <div class="grid grid-cols-[1fr_auto_1fr] gap-0 pb-3 border-b border-zinc-200/80">
           <!-- College 1 Header -->
-          <div class="pr-4">
+          <div class="pr-4 text-ellipsis overflow-hidden">
             <ComparisonHeader
               :college="collegePair[0]"
               align="right"
@@ -98,7 +98,7 @@ const _candidatsWinner = computed(() => {
           <div class="w-px bg-zinc-200 mx-4" />
 
           <!-- College 2 Header -->
-          <div class="pl-4">
+          <div class="pl-4 text-ellipsis overflow-hidden">
             <ComparisonHeader
               :college="collegePair[1]"
               align="left"

@@ -257,7 +257,7 @@ function handleRemoveFromComparison() {
       </ClientOnly>
 
       <!-- Right side card area - Unified Info Card with Tabs -->
-      <div class="absolute top-4 right-4 z-10 w-80 sm:w-96 max-w-[calc(100vw-24px)]">
+      <div class="absolute top-4 right-4 z-10 w-80 sm:w-96 max-w-[calc(100vw-24px)] max-h-[calc(100vh-2rem)] flex flex-col">
         <InfoCard
           :college="selectedCollege"
           :filtered-features="filteredFeatures"
@@ -270,12 +270,14 @@ function handleRemoveFromComparison() {
           :is-in-comparison="selectedCollege ? isInComparison(selectedCollege.properties.uai) : false"
           :on-add-to-comparison="handleAddToComparison"
           :on-remove-from-comparison="handleRemoveFromComparison"
+          class="flex-1 min-h-0"
         />
 
         <!-- Comparison Toggle Button -->
         <ComparisonToggle
           :is-open="comparisonPanelOpen"
           :count="comparisonColleges.length"
+          class="shrink-0"
           @toggle="comparisonPanelOpen = !comparisonPanelOpen"
         />
       </div>
