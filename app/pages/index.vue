@@ -90,7 +90,7 @@ function handleHighlight() {
       <Transition name="fade">
         <button
           v-show="!sidebarOpen && status !== 'pending'"
-          class="absolute top-4 left-4 z-20 bg-white rounded-lg shadow-sm w-9 h-9 flex items-center justify-center border border-zinc-200/80 cursor-pointer hover:bg-zinc-50 transition-colors"
+          class="absolute top-4 left-4 z-20 bg-white rounded-lg w-9 h-9 flex items-center justify-center border border-zinc-200/80 cursor-pointer hover:bg-zinc-50 transition-colors"
           aria-label="Ouvrir le panneau"
           @click="sidebarOpen = true"
         >
@@ -107,7 +107,7 @@ function handleHighlight() {
           v-show="sidebarOpen && status !== 'pending'"
           class="absolute top-4 left-4 bottom-4 z-20 w-80 max-w-[calc(100vw-24px)] hidden sm:block"
         >
-          <div class="bg-white rounded-lg shadow-lg border border-zinc-200/80 h-full overflow-hidden flex flex-col">
+          <div class="bg-white rounded-lg border border-zinc-200/80 h-full overflow-hidden flex flex-col">
             <!-- Header -->
             <div class="flex items-center gap-2 px-4 h-14 border-b border-zinc-200/80 shrink-0">
               <NuxtLink

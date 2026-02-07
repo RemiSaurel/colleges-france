@@ -149,7 +149,7 @@ const cardSubtitle = computed(() => {
 </script>
 
 <template>
-  <div class="bg-white border border-zinc-200/90 rounded-2xl shadow-[0_4px_24px_-2px_rgba(0,0,0,0.08)] overflow-hidden">
+  <div class="bg-white border border-zinc-200/90 rounded-xl overflow-hidden">
     <!-- Header -->
     <div class="flex items-start justify-between gap-2 px-5 py-4 border-b border-zinc-200/90 bg-linear-to-b from-zinc-50/50 to-white">
       <div class="min-w-0 flex-1">

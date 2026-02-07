@@ -440,7 +440,6 @@ onUnmounted(() => {
 .college-popup .maplibregl-popup-content {
   padding: 10px 14px;
   border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   font-family: inherit;
   min-width: 300px;
   max-width: 350px;
