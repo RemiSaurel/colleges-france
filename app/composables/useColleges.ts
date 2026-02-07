@@ -1,5 +1,5 @@
 import type { CollegeFeature, CollegeGeoJSON, FilterState } from "~/utils/types";
-import { DROM_COM_REGIONS, IPS_MAX, IPS_MIN } from "~/utils/types";
+import { DROM_COM_REGIONS, IPS_MAX, IPS_MIN, normalizeText } from "~/utils/types";
 
 export function useColleges() {
   const { data, status, error } = useFetch<CollegeGeoJSON>("/api/colleges", {
@@ -8,6 +8,7 @@ export function useColleges() {
 
   const filters = reactive<FilterState>({
     regions: [],
+    academies: [],
     secteur: "",
     ipsRange: [IPS_MIN, IPS_MAX],
     search: "",
@@ -31,6 +32,7 @@ export function useColleges() {
   // Check if any non-region filters are active (for smart zoom)
   const hasNonRegionFilters = computed(() => {
     return filters.secteur !== ""
+      || filters.academies.length > 0
       || filters.ipsRange[0] !== IPS_MIN
       || filters.ipsRange[1] !== IPS_MAX
       || filters.search !== ""
@@ -58,11 +60,15 @@ export function useColleges() {
       if (p.ips < filters.ipsRange[0] || p.ips > filters.ipsRange[1])
         return false;
 
-      // Search filter
+      // Académie filter
+      if (filters.academies.length > 0 && !filters.academies.includes(p.academie))
+        return false;
+
+      // Search filter (accent-insensitive)
       if (filters.search) {
-        const search = filters.search.toLowerCase();
-        const matchName = p.nom.toLowerCase().includes(search);
-        const matchCommune = p.commune.toLowerCase().includes(search);
+        const search = normalizeText(filters.search);
+        const matchName = normalizeText(p.nom).includes(search);
+        const matchCommune = normalizeText(p.commune).includes(search);
         if (!matchName && !matchCommune)
           return false;
       }
@@ -133,9 +139,15 @@ export function useColleges() {
       ? withNote.reduce((a, f) => a + (f.properties.note_ecrit ?? 0), 0) / withNote.length
       : null;
 
+    // Sum of nb_candidats across all colleges with DNB data
+    const totalCandidats = withDnbData.length
+      ? withDnbData.reduce((sum, f) => sum + (f.properties.nb_candidats ?? 0), 0)
+      : null;
+
     return {
       count: features.length,
       countWithDnb: withDnbData.length,
+      totalCandidats,
       avgIps: Math.round(avgIps * 10) / 10,
       avgReussite: avgReussite ? Math.round(avgReussite * 10) / 10 : null,
       avgValeurAjoutee: avgValeurAjoutee ? Math.round(avgValeurAjoutee * 10) / 10 : null,
@@ -151,6 +163,7 @@ export function useColleges() {
 
   function resetFilters() {
     filters.regions = [];
+    filters.academies = [];
     filters.secteur = "";
     filters.ipsRange = [IPS_MIN, IPS_MAX];
     filters.search = "";

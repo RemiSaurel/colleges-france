@@ -49,11 +49,11 @@ const histogram = computed(() => {
         {{ features.length.toLocaleString('fr-FR') }} collège{{ features.length > 1 ? 's' : '' }}
       </div>
     </div>
-    <div class="flex items-end gap-px h-16">
+    <div class="flex items-end gap-px h-20 pt-1">
       <motion.div
         v-for="(bin, i) in histogram"
         :key="i"
-        class="flex-1 rounded-t-sm relative group cursor-pointer"
+        class="flex-1 rounded-t-sm relative group"
         :initial="{ scaleY: 0, height: '2%' }"
         :animate="{
           scaleY: 1,

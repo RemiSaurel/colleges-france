@@ -2,6 +2,7 @@ export type { CollegeFeature, CollegeGeoJSON } from "../../server/utils/types";
 
 export interface FilterState {
   regions: string[];
+  academies: string[];
   secteur: string;
   ipsRange: [number, number];
   search: string;
@@ -11,6 +12,17 @@ export interface FilterState {
   valeurAjouteeRange: [number, number] | null;
   noteEcritRange: [number, number] | null;
   nbCandidatsRange: [number, number] | null;
+}
+
+/**
+ * Normalize text for accent-insensitive search
+ * Converts to lowercase, decomposes accented characters, and removes diacritics
+ */
+export function normalizeText(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036F]/g, "");
 }
 
 // IPS constants
@@ -56,6 +68,47 @@ export const METROPOLITAN_REGIONS: string[] = [
 // All regions combined
 export const REGIONS: string[] = [...METROPOLITAN_REGIONS, ...DROM_COM_REGIONS];
 
+// DROM-COM académies (overseas territories)
+export const DROM_COM_ACADEMIES: string[] = [
+  "GUADELOUPE",
+  "GUYANE",
+  "LA REUNION",
+  "MARTINIQUE",
+  "MAYOTTE",
+];
+
+// Metropolitan France académies (excluding DROM-COM)
+export const METROPOLITAN_ACADEMIES: string[] = [
+  "AIX-MARSEILLE",
+  "AMIENS",
+  "BESANCON",
+  "BORDEAUX",
+  "CLERMONT-FERRAND",
+  "CORSE",
+  "CRETEIL",
+  "DIJON",
+  "GRENOBLE",
+  "LILLE",
+  "LIMOGES",
+  "LYON",
+  "MONTPELLIER",
+  "NANCY-METZ",
+  "NANTES",
+  "NICE",
+  "NORMANDIE",
+  "ORLEANS-TOURS",
+  "PARIS",
+  "POITIERS",
+  "REIMS",
+  "RENNES",
+  "STRASBOURG",
+  "TOULOUSE",
+  "VERSAILLES",
+];
+
+// All académies combined
+export const ACADEMIES: string[] = [...METROPOLITAN_ACADEMIES, ...DROM_COM_ACADEMIES];
+
 // Helper to format region names for display
 export function formatRegionName(region: string): string {
   // Special case mappings for proper formatting
@@ -81,4 +134,43 @@ export function formatRegionName(region: string): string {
   };
 
   return specialCases[region] || region;
+}
+
+// Helper to format academy names for display
+export function formatAcademyName(academy: string): string {
+  // Special case mappings for proper formatting
+  const specialCases: Record<string, string> = {
+    "AIX-MARSEILLE": "Aix-Marseille",
+    "AMIENS": "Amiens",
+    "BESANCON": "Besançon",
+    "BORDEAUX": "Bordeaux",
+    "CLERMONT-FERRAND": "Clermont-Ferrand",
+    "CORSE": "Corse",
+    "CRETEIL": "Créteil",
+    "DIJON": "Dijon",
+    "GRENOBLE": "Grenoble",
+    "GUADELOUPE": "Guadeloupe",
+    "GUYANE": "Guyane",
+    "LA REUNION": "La Réunion",
+    "LILLE": "Lille",
+    "LIMOGES": "Limoges",
+    "LYON": "Lyon",
+    "MARTINIQUE": "Martinique",
+    "MAYOTTE": "Mayotte",
+    "MONTPELLIER": "Montpellier",
+    "NANCY-METZ": "Nancy-Metz",
+    "NANTES": "Nantes",
+    "NICE": "Nice",
+    "NORMANDIE": "Normandie",
+    "ORLEANS-TOURS": "Orléans-Tours",
+    "PARIS": "Paris",
+    "POITIERS": "Poitiers",
+    "REIMS": "Reims",
+    "RENNES": "Rennes",
+    "STRASBOURG": "Strasbourg",
+    "TOULOUSE": "Toulouse",
+    "VERSAILLES": "Versailles",
+  };
+
+  return specialCases[academy] || academy;
 }

@@ -109,7 +109,7 @@ function handleHighlight() {
         >
           <div class="bg-white rounded-lg shadow-lg border border-zinc-200/80 h-full overflow-hidden flex flex-col">
             <!-- Header -->
-            <div class="flex items-center gap-2 px-4 h-14 border-b border-zinc-200/80 flex-shrink-0">
+            <div class="flex items-center gap-2 px-4 h-14 border-b border-zinc-200/80 shrink-0">
               <NuxtLink
                 to="https://remisaurel.dev"
                 target="_blank"
@@ -133,45 +133,53 @@ function handleHighlight() {
               </button>
             </div>
 
-            <!-- Scrollable content -->
-            <div class="overflow-y-auto flex-1">
-              <div class="p-4 space-y-6">
-                <!-- Histogram -->
-                <IpsHistogram
-                  :features="filteredFeatures"
-                  :selected-ips="selectedCollege?.properties.ips ?? null"
-                />
-
-                <!-- Filters -->
-                <FilterSidebar
-                  :filters="filters"
-                  :has-dnb-filters="hasDnbFilters"
-                  :on-reset="resetFilters"
-                  @update:filters="(newFilters) => Object.assign(filters, newFilters)"
-                />
-
-                <!-- Footer links -->
-                <div class="pt-4 space-y-2 border-t border-zinc-200/80">
-                  <UButton
-                    to="/about"
-                    variant="link"
-                    color="neutral"
-                    size="sm"
-                    block
-                    label="À propos des données"
-                    trailing-icon="i-lucide-arrow-up-right"
+            <!-- Content area with scrollable section and sticky footer -->
+            <div class="flex-1 flex flex-col overflow-hidden">
+              <!-- Scrollable content: Histogram + Filters -->
+              <div class="flex-1 overflow-y-auto">
+                <div class="flex flex-col">
+                  <!-- Histogram -->
+                  <IpsHistogram
+                    :features="filteredFeatures"
+                    :selected-ips="selectedCollege?.properties.ips ?? null"
+                    class="border-b border-zinc-200 shrink-0 p-4"
                   />
-                  <UButton
-                    to="https://github.com/remisaurel/colleges-france"
-                    target="_blank"
-                    variant="link"
-                    color="neutral"
-                    size="sm"
-                    block
-                    label="Voir le code source"
-                    trailing-icon="i-lucide-github"
+
+                  <!-- Filters -->
+                  <FilterSidebar
+                    :filters="filters"
+                    :has-dnb-filters="hasDnbFilters"
+                    :on-reset="resetFilters"
+                    class="p-4"
+                    @update:filters="(newFilters) => Object.assign(filters, newFilters)"
                   />
                 </div>
+              </div>
+
+              <!-- Footer links - always visible at bottom -->
+              <div class="p-4 pt-4 space-y-2 border-t border-zinc-200/80 shrink-0 bg-white">
+                <UButton
+                  to="/about"
+                  variant="link"
+                  color="neutral"
+                  size="sm"
+                  block
+                  label="À propos des données"
+                  trailing-icon="i-lucide-arrow-right"
+                />
+                <UButton
+                  to="https://github.com/remisaurel/colleges-france"
+                  target="_blank"
+                  variant="link"
+                  color="neutral"
+                  size="sm"
+                  block
+                  label="Voir le code source"
+                  trailing-icon="i-lucide-github"
+                />
+                <p class="text-xs text-zinc-400 px-2.5 pt-1 font-light tracking-tight">
+                  OpenStreetMap contributors © CARTO
+                </p>
               </div>
             </div>
           </div>

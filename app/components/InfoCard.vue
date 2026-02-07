@@ -9,6 +9,7 @@ const props = defineProps<{
   stats: {
     count: number;
     countWithDnb: number;
+    totalCandidats: number | null;
     avgIps: number;
     avgReussite: number | null;
     avgValeurAjoutee: number | null;
@@ -80,11 +81,13 @@ const vaLabel = computed(() => {
   const va = p.value?.valeur_ajoutee;
   if (va === null || va === undefined || Number.isNaN(va))
     return null;
-  if (va > 2)
-    return { text: `+${va}`, color: "text-green-600", icon: "i-lucide-trending-up" };
-  if (va < -2)
-    return { text: `${va}`, color: "text-red-600", icon: "i-lucide-trending-down" };
-  return { text: `${va > 0 ? "+" : ""}${va}`, color: "text-zinc-500", icon: "i-lucide-minus" };
+  // Handle -0 case
+  const vaNum = va === 0 ? 0 : va;
+  if (vaNum > 2)
+    return { text: `+${vaNum}`, color: "text-green-600", icon: "i-lucide-trending-up" };
+  if (vaNum < -2)
+    return { text: `${vaNum}`, color: "text-red-600", icon: "i-lucide-trending-down" };
+  return { text: `${vaNum > 0 ? "+" : ""}${vaNum}`, color: "text-zinc-500", icon: "i-lucide-minus" };
 });
 
 // Stats computed properties
@@ -96,6 +99,7 @@ const maxIps = computed(() => props.stats?.maxIps ?? 0);
 const avgReussite = computed(() => props.stats?.avgReussite);
 const avgValeurAjoutee = computed(() => props.stats?.avgValeurAjoutee);
 const avgNoteEcrit = computed(() => props.stats?.avgNoteEcrit);
+const totalCandidats = computed(() => props.stats?.totalCandidats ?? null);
 const hasDnbData = computed(() => avgReussite.value !== null || avgValeurAjoutee.value !== null || avgNoteEcrit.value !== null);
 
 const dnbPercentage = computed(() => {
@@ -147,7 +151,7 @@ const cardSubtitle = computed(() => {
 <template>
   <div class="bg-white border border-zinc-200/90 rounded-2xl shadow-[0_4px_24px_-2px_rgba(0,0,0,0.08)] overflow-hidden">
     <!-- Header -->
-    <div class="flex items-start justify-between gap-2 px-5 py-4 border-b border-zinc-200/90 bg-gradient-to-b from-zinc-50/50 to-white">
+    <div class="flex items-start justify-between gap-2 px-5 py-4 border-b border-zinc-200/90 bg-linear-to-b from-zinc-50/50 to-white">
       <div class="min-w-0 flex-1">
         <h3 class="font-bold text-base truncate text-zinc-900">
           {{ cardTitle }}
@@ -371,7 +375,7 @@ const cardSubtitle = computed(() => {
                   :content="{ side: 'bottom' }"
                 >
                   <div
-                    class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all"
+                    class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all cursor-help"
                     :class="{
                       'bg-emerald-50/50 border-emerald-200/40': avgValeurAjoutee !== null && avgValeurAjoutee !== undefined && avgValeurAjoutee > 2,
                       'bg-red-50/50 border-red-200/40': avgValeurAjoutee !== null && avgValeurAjoutee !== undefined && avgValeurAjoutee < -2,
@@ -392,10 +396,10 @@ const cardSubtitle = computed(() => {
                         'text-zinc-900': avgValeurAjoutee >= -2 && avgValeurAjoutee <= 2,
                       }"
                     >
-                      {{ avgValeurAjoutee > 0 ? '+' : '' }}<AnimatedNumber :value="avgValeurAjoutee" :decimals="0" />
+                      {{ avgValeurAjoutee > 0 ? '+' : '' }}<AnimatedNumber :value="avgValeurAjoutee" :decimals="1" />
                     </div>
 
-                    <div class="text-xs uppercase tracking-wider text-zinc-500 mt-2 cursor-help">
+                    <div class="text-xs uppercase tracking-wider text-zinc-500 mt-2 ">
                       VA
                     </div>
                   </div>
@@ -420,8 +424,8 @@ const cardSubtitle = computed(() => {
                 <div
                   class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all"
                 >
-                  <div v-if="countWithDnb > 0" class="text-3xl font-bold text-zinc-900">
-                    <AnimatedNumber :value="countWithDnb" :decimals="0" />
+                  <div v-if="totalCandidats !== null && totalCandidats > 0" class="text-3xl font-bold text-zinc-900">
+                    <AnimatedNumber :value="totalCandidats" :decimals="0" />
                   </div>
                   <div v-else class="text-sm text-zinc-400 py-2">
                     Aucune donnée
@@ -478,16 +482,16 @@ const cardSubtitle = computed(() => {
             >
               <!-- IPS Value -->
               <div class="shrink-0">
-                <div class="flex items-baseline gap-2 mb-1">
+                <div class="flex flex-col items-center mb-3">
+                  <span class="text-xs text-zinc-500">IPS</span>
                   <span
                     class="text-4xl font-bold"
                     :style="{ color: ipsColor(p!.ips) }"
                   >
                     {{ formatFr(p!.ips, 0) }}
                   </span>
-                  <span class="text-xs text-zinc-500">IPS</span>
                 </div>
-                <div class="flex items-center gap-2 text-xs text-zinc-500">
+                <div class="flex flex-col gap-2 text-xs text-zinc-500">
                   <span> Ecart-type : {{ formatFr(p!.ecart_type_ips, 1) }}</span>
                 </div>
               </div>

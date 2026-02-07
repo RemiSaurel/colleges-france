@@ -47,6 +47,11 @@ export function useFilterSync(filters: FilterState) {
       filters.regions = query.regions.split(",").filter(Boolean);
     }
 
+    // Académies (comma-separated)
+    if (query.academies && typeof query.academies === "string") {
+      filters.academies = query.academies.split(",").filter(Boolean);
+    }
+
     // Secteur
     if (query.secteur && typeof query.secteur === "string") {
       filters.secteur = query.secteur;
@@ -105,6 +110,11 @@ export function useFilterSync(filters: FilterState) {
     // Regions
     if (filters.regions.length > 0) {
       query.regions = filters.regions.join(",");
+    }
+
+    // Académies
+    if (filters.academies.length > 0) {
+      query.academies = filters.academies.join(",");
     }
 
     // Secteur

@@ -242,7 +242,7 @@ onMounted(() => {
           statsHtml.push(`
             <div>
               <div class="text-lg font-bold" style="color: ${vaColor}">${valeurAjoutee > 0 ? "+" : ""}${valeurAjoutee}</div>
-              <div class="text-[10px] text-zinc-500 uppercase tracking-wider">VA</div>
+              <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Valeur Ajoutée</div>
             </div>
           `);
         }

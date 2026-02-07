@@ -3,10 +3,13 @@ import type { AccordionItem } from "@nuxt/ui";
 import type { FilterState } from "~/utils/types";
 import { useDebounceFn } from "@vueuse/core";
 import {
+  DROM_COM_ACADEMIES,
   DROM_COM_REGIONS,
+  formatAcademyName,
   formatRegionName,
   IPS_MAX,
   IPS_MIN,
+  METROPOLITAN_ACADEMIES,
   METROPOLITAN_REGIONS,
   NB_CANDIDATS_MAX,
   NB_CANDIDATS_MIN,
@@ -37,6 +40,11 @@ const search = computed({
 const regions = computed({
   get: () => props.filters.regions,
   set: value => emit("update:filters", { ...props.filters, regions: value }),
+});
+
+const academies = computed({
+  get: () => props.filters.academies,
+  set: value => emit("update:filters", { ...props.filters, academies: value }),
 });
 
 const locationMode = computed({
@@ -111,12 +119,28 @@ const availableRegions = computed(() => {
   return METROPOLITAN_REGIONS;
 });
 
+// Available academies based on location mode
+const availableAcademies = computed(() => {
+  if (locationMode.value === "all") {
+    return [...METROPOLITAN_ACADEMIES, ...DROM_COM_ACADEMIES];
+  }
+  if (locationMode.value === "drom-com") {
+    return DROM_COM_ACADEMIES;
+  }
+  return METROPOLITAN_ACADEMIES;
+});
+
 const regionOptions = computed(() =>
   availableRegions.value.map(r => ({ label: formatRegionName(r), value: r })),
 );
 
+const academyOptions = computed(() =>
+  availableAcademies.value.map(a => ({ label: formatAcademyName(a), value: a })),
+);
+
 const hasActiveFilters = computed(() => {
   return props.filters.regions.length > 0
+    || props.filters.academies.length > 0
     || props.filters.secteur !== ""
     || props.filters.ipsRange[0] !== IPS_MIN
     || props.filters.ipsRange[1] !== IPS_MAX
@@ -128,7 +152,7 @@ const hasActiveFilters = computed(() => {
     || props.filters.nbCandidatsRange !== null;
 });
 
-// Watch for location mode changes and clean up selected regions
+// Watch for location mode changes and clean up selected regions and academies
 watch(locationMode, (newValue) => {
   if (newValue === "metropolitan") {
     // Remove DROM-COM regions when switching to metropolitan only
@@ -136,11 +160,21 @@ watch(locationMode, (newValue) => {
     if (filteredRegions.length !== regions.value.length) {
       regions.value = filteredRegions;
     }
+    // Remove DROM-COM academies when switching to metropolitan only
+    const filteredAcademies = academies.value.filter(a => !DROM_COM_ACADEMIES.includes(a));
+    if (filteredAcademies.length !== academies.value.length) {
+      academies.value = filteredAcademies;
+    }
   } else if (newValue === "drom-com") {
     // Remove metropolitan regions when switching to DROM-COM only
     const filteredRegions = regions.value.filter(r => DROM_COM_REGIONS.includes(r));
     if (filteredRegions.length !== regions.value.length) {
       regions.value = filteredRegions;
+    }
+    // Remove metropolitan academies when switching to DROM-COM only
+    const filteredAcademies = academies.value.filter(a => DROM_COM_ACADEMIES.includes(a));
+    if (filteredAcademies.length !== academies.value.length) {
+      academies.value = filteredAcademies;
     }
   }
 });
@@ -294,6 +328,22 @@ function disableNbCandidats() {
                 DROM-COM
               </button>
             </div>
+          </div>
+
+          <!-- Académie Select -->
+          <div>
+            <label class="text-xs font-medium text-zinc-500 mb-1.5 block">
+              Académie{{ academies.length > 0 ? `s (${academies.length})` : 's' }}
+            </label>
+            <USelectMenu
+              v-model="academies"
+              :items="academyOptions"
+              value-key="value"
+              placeholder="Toutes les académies"
+              size="sm"
+              class="w-full"
+              multiple
+            />
           </div>
 
           <!-- Region Select -->
