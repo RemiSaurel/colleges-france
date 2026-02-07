@@ -133,45 +133,48 @@ function handleHighlight() {
               </button>
             </div>
 
-            <!-- Scrollable content -->
-            <div class="overflow-y-auto flex-1">
-              <div class="p-4 space-y-6">
-                <!-- Histogram -->
-                <IpsHistogram
-                  :features="filteredFeatures"
-                  :selected-ips="selectedCollege?.properties.ips ?? null"
-                />
-
-                <!-- Filters -->
-                <FilterSidebar
-                  :filters="filters"
-                  :has-dnb-filters="hasDnbFilters"
-                  :on-reset="resetFilters"
-                  @update:filters="(newFilters) => Object.assign(filters, newFilters)"
-                />
-
-                <!-- Footer links -->
-                <div class="pt-4 space-y-2 border-t border-zinc-200/80">
-                  <UButton
-                    to="/about"
-                    variant="link"
-                    color="neutral"
-                    size="sm"
-                    block
-                    label="À propos des données"
-                    trailing-icon="i-lucide-arrow-up-right"
+            <!-- Content area with scrollable section and sticky footer -->
+            <div class="flex-1 flex flex-col overflow-hidden">
+              <!-- Scrollable content: Histogram + Filters -->
+              <div class="flex-1 overflow-y-auto">
+                <div class="p-4 flex flex-col gap-6">
+                  <!-- Histogram -->
+                  <IpsHistogram
+                    :features="filteredFeatures"
+                    :selected-ips="selectedCollege?.properties.ips ?? null"
                   />
-                  <UButton
-                    to="https://github.com/remisaurel/colleges-france"
-                    target="_blank"
-                    variant="link"
-                    color="neutral"
-                    size="sm"
-                    block
-                    label="Voir le code source"
-                    trailing-icon="i-lucide-github"
+
+                  <!-- Filters -->
+                  <FilterSidebar
+                    :filters="filters"
+                    :has-dnb-filters="hasDnbFilters"
+                    :on-reset="resetFilters"
+                    @update:filters="(newFilters) => Object.assign(filters, newFilters)"
                   />
                 </div>
+              </div>
+
+              <!-- Footer links - always visible at bottom -->
+              <div class="p-4 pt-4 space-y-2 border-t border-zinc-200/80 shrink-0 bg-white">
+                <UButton
+                  to="/about"
+                  variant="link"
+                  color="neutral"
+                  size="sm"
+                  block
+                  label="À propos des données"
+                  trailing-icon="i-lucide-arrow-right"
+                />
+                <UButton
+                  to="https://github.com/remisaurel/colleges-france"
+                  target="_blank"
+                  variant="link"
+                  color="neutral"
+                  size="sm"
+                  block
+                  label="Voir le code source"
+                  trailing-icon="i-lucide-github"
+                />
               </div>
             </div>
           </div>
