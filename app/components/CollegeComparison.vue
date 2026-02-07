@@ -10,7 +10,7 @@ const props = defineProps<{
   onClearComparison: () => void;
 }>();
 
-const { getMentionsPct, getVaLabel, compareHigher, isWinner } = useCollegeComparison();
+const { getMentionsPct, getVaLabel } = useCollegeComparison();
 
 // Get colleges as tuple when we know there are exactly 2
 const collegePair = computed(() => {
@@ -20,35 +20,6 @@ const collegePair = computed(() => {
 });
 
 const firstCollege = computed(() => props.colleges[0] ?? null);
-
-// Computed comparisons
-const reussiteWinner = computed(() => {
-  const pair = collegePair.value;
-  if (!pair)
-    return null;
-  return compareHigher(pair[0].properties.taux_reussite, pair[1].properties.taux_reussite);
-});
-
-const valeurAjouteeWinner = computed(() => {
-  const pair = collegePair.value;
-  if (!pair)
-    return null;
-  return compareHigher(pair[0].properties.valeur_ajoutee, pair[1].properties.valeur_ajoutee);
-});
-
-const noteEcritWinner = computed(() => {
-  const pair = collegePair.value;
-  if (!pair)
-    return null;
-  return compareHigher(pair[0].properties.note_ecrit, pair[1].properties.note_ecrit);
-});
-
-const _candidatsWinner = computed(() => {
-  const pair = collegePair.value;
-  if (!pair)
-    return null;
-  return compareHigher(pair[0].properties.nb_candidats, pair[1].properties.nb_candidats);
-});
 </script>
 
 <template>
@@ -149,7 +120,6 @@ const _candidatsWinner = computed(() => {
             :college2="collegePair[1]"
             :value1="collegePair[0].properties.taux_reussite"
             :value2="collegePair[1].properties.taux_reussite"
-            :winner="reussiteWinner"
             suffix="%"
           />
 
@@ -159,7 +129,7 @@ const _candidatsWinner = computed(() => {
               <span
                 v-if="getVaLabel(collegePair[0])"
                 class="text-base font-semibold"
-                :class="[getVaLabel(collegePair[0])?.color, { 'bg-green-50 px-2 py-0.5 rounded-md': isWinner(0, valeurAjouteeWinner) }]"
+                :class="getVaLabel(collegePair[0])?.color"
               >
                 {{ getVaLabel(collegePair[0])?.text }}
               </span>
@@ -172,7 +142,7 @@ const _candidatsWinner = computed(() => {
               <span
                 v-if="getVaLabel(collegePair[1])"
                 class="text-base font-semibold"
-                :class="[getVaLabel(collegePair[1])?.color, { 'bg-green-50 px-2 py-0.5 rounded-md': isWinner(1, valeurAjouteeWinner) }]"
+                :class="getVaLabel(collegePair[1])?.color"
               >
                 {{ getVaLabel(collegePair[1])?.text }}
               </span>
@@ -188,11 +158,10 @@ const _candidatsWinner = computed(() => {
             :college2="collegePair[1]"
             :value1="collegePair[0].properties.note_ecrit"
             :value2="collegePair[1].properties.note_ecrit"
-            :winner="noteEcritWinner"
             :decimals="1"
           />
 
-          <!-- Candidats Row - No winner highlighting -->
+          <!-- Candidats Row -->
           <ComparisonRow
             v-if="collegePair[0].properties.nb_candidats !== null || collegePair[1].properties.nb_candidats !== null"
             label="Candidats"
@@ -200,8 +169,6 @@ const _candidatsWinner = computed(() => {
             :college2="collegePair[1]"
             :value1="collegePair[0].properties.nb_candidats"
             :value2="collegePair[1].properties.nb_candidats"
-            :winner="_candidatsWinner"
-            :highlight-winner="false"
             :formatter="(v: number) => v.toString()"
           />
         </div>

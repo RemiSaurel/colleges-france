@@ -10,8 +10,6 @@ interface Props {
   value2: number | null;
   decimals?: number;
   suffix?: string;
-  highlightWinner?: boolean;
-  winner: 1 | 2 | null;
   formatter?: (value: number, decimals: number) => string;
 }
 
@@ -21,8 +19,6 @@ const {
   value2,
   decimals = 0,
   suffix = "",
-  highlightWinner = true,
-  winner,
   formatter = formatFr,
 } = defineProps<Props>();
 
@@ -38,13 +34,6 @@ const formattedValue2 = computed(() => {
     return null;
   return `${formatter(value2, decimals)}${suffix}`;
 });
-
-// Check if college is winner
-function isWinner(collegeIndex: 0 | 1): boolean {
-  if (!highlightWinner || winner === null)
-    return false;
-  return winner === collegeIndex + 1;
-}
 </script>
 
 <template>
@@ -54,7 +43,6 @@ function isWinner(collegeIndex: 0 | 1): boolean {
       <span
         v-if="formattedValue1"
         class="text-base font-semibold"
-        :class="{ 'bg-green-50 text-green-700 px-2 py-0.5 rounded-md': isWinner(0) }"
       >
         {{ formattedValue1 }}
       </span>
@@ -71,7 +59,6 @@ function isWinner(collegeIndex: 0 | 1): boolean {
       <span
         v-if="formattedValue2"
         class="text-base font-semibold"
-        :class="{ 'bg-green-50 text-green-700 px-2 py-0.5 rounded-md': isWinner(1) }"
       >
         {{ formattedValue2 }}
       </span>

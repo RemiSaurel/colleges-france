@@ -123,6 +123,17 @@ const emit = defineEmits<{
   "update:filters": [filters: FilterState];
 }>();
 
+// defineModel: Use for v-model bindings (replaces prop + emit)
+// For simple v-model (modelValue)
+const model = defineModel<string>();
+
+// For named v-model bindings (e.g., v-model:filters)
+const filters = defineModel<FilterState>("filters", { required: true });
+
+// For multiple models
+const firstName = defineModel<string>("firstName");
+const age = defineModel<number>("age");
+
 // State: Type refs explicitly when needed
 const sidebarOpen = ref(true);
 const mapContainer = ref<HTMLDivElement>();
@@ -423,6 +434,20 @@ const value = computed({
   get: () => props.modelValue,
   set: val => emit("update:modelValue", val)
 });
+```
+
+**With defineModel (preferred for v-model):**
+```typescript
+const value = defineModel<string>();
+```
+
+**Named models for nested bindings:**
+```typescript
+// Component
+const filters = defineModel<FilterState>("filters", { required: true });
+
+// Usage
+<FilterSidebar v-model:filters="filters" />
 ```
 
 **MapLibre layer management:**

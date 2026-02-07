@@ -47,33 +47,8 @@ export function useCollegeComparison() {
     return { text: `${vaNum > 0 ? "+" : ""}${vaNum}`, color: "text-zinc-500", icon: "i-lucide-minus" };
   }
 
-  /**
-   * Compare two values and return which college has the higher value
-   * @returns 1 for college 1, 2 for college 2, or null if tied/invalid
-   */
-  function compareHigher(val1: number | null, val2: number | null): 1 | 2 | null {
-    if (val1 === null || val2 === null)
-      return null;
-    if (val1 > val2)
-      return 1;
-    if (val2 > val1)
-      return 2;
-    return null;
-  }
-
-  /**
-   * Check if a college is the winner for a specific metric
-   */
-  function isWinner(collegeIndex: 0 | 1, winner: 1 | 2 | null): boolean {
-    if (winner === null)
-      return false;
-    return winner === collegeIndex + 1;
-  }
-
   return {
     getMentionsPct,
     getVaLabel,
-    compareHigher,
-    isWinner,
   };
 }
