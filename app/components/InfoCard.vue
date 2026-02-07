@@ -375,7 +375,7 @@ const cardSubtitle = computed(() => {
                   :content="{ side: 'bottom' }"
                 >
                   <div
-                    class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all"
+                    class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all cursor-help"
                     :class="{
                       'bg-emerald-50/50 border-emerald-200/40': avgValeurAjoutee !== null && avgValeurAjoutee !== undefined && avgValeurAjoutee > 2,
                       'bg-red-50/50 border-red-200/40': avgValeurAjoutee !== null && avgValeurAjoutee !== undefined && avgValeurAjoutee < -2,
@@ -399,7 +399,7 @@ const cardSubtitle = computed(() => {
                       {{ avgValeurAjoutee > 0 ? '+' : '' }}<AnimatedNumber :value="avgValeurAjoutee" :decimals="1" />
                     </div>
 
-                    <div class="text-xs uppercase tracking-wider text-zinc-500 mt-2 cursor-help">
+                    <div class="text-xs uppercase tracking-wider text-zinc-500 mt-2 ">
                       VA
                     </div>
                   </div>
@@ -482,16 +482,16 @@ const cardSubtitle = computed(() => {
             >
               <!-- IPS Value -->
               <div class="shrink-0">
-                <div class="flex items-baseline gap-2 mb-1">
+                <div class="flex flex-col items-center mb-3">
+                  <span class="text-xs text-zinc-500">IPS</span>
                   <span
                     class="text-4xl font-bold"
                     :style="{ color: ipsColor(p!.ips) }"
                   >
                     {{ formatFr(p!.ips, 0) }}
                   </span>
-                  <span class="text-xs text-zinc-500">IPS</span>
                 </div>
-                <div class="flex items-center gap-2 text-xs text-zinc-500">
+                <div class="flex flex-col gap-2 text-xs text-zinc-500">
                   <span> Ecart-type : {{ formatFr(p!.ecart_type_ips, 1) }}</span>
                 </div>
               </div>
