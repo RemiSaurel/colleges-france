@@ -133,9 +133,15 @@ export function useColleges() {
       ? withNote.reduce((a, f) => a + (f.properties.note_ecrit ?? 0), 0) / withNote.length
       : null;
 
+    // Sum of nb_candidats across all colleges with DNB data
+    const totalCandidats = withDnbData.length
+      ? withDnbData.reduce((sum, f) => sum + (f.properties.nb_candidats ?? 0), 0)
+      : null;
+
     return {
       count: features.length,
       countWithDnb: withDnbData.length,
+      totalCandidats,
       avgIps: Math.round(avgIps * 10) / 10,
       avgReussite: avgReussite ? Math.round(avgReussite * 10) / 10 : null,
       avgValeurAjoutee: avgValeurAjoutee ? Math.round(avgValeurAjoutee * 10) / 10 : null,

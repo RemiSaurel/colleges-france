@@ -9,6 +9,7 @@ const props = defineProps<{
   stats: {
     count: number;
     countWithDnb: number;
+    totalCandidats: number | null;
     avgIps: number;
     avgReussite: number | null;
     avgValeurAjoutee: number | null;
@@ -96,6 +97,7 @@ const maxIps = computed(() => props.stats?.maxIps ?? 0);
 const avgReussite = computed(() => props.stats?.avgReussite);
 const avgValeurAjoutee = computed(() => props.stats?.avgValeurAjoutee);
 const avgNoteEcrit = computed(() => props.stats?.avgNoteEcrit);
+const totalCandidats = computed(() => props.stats?.totalCandidats ?? null);
 const hasDnbData = computed(() => avgReussite.value !== null || avgValeurAjoutee.value !== null || avgNoteEcrit.value !== null);
 
 const dnbPercentage = computed(() => {
@@ -420,8 +422,8 @@ const cardSubtitle = computed(() => {
                 <div
                   class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all"
                 >
-                  <div v-if="countWithDnb > 0" class="text-3xl font-bold text-zinc-900">
-                    <AnimatedNumber :value="countWithDnb" :decimals="0" />
+                  <div v-if="totalCandidats !== null && totalCandidats > 0" class="text-3xl font-bold text-zinc-900">
+                    <AnimatedNumber :value="totalCandidats" :decimals="0" />
                   </div>
                   <div v-else class="text-sm text-zinc-400 py-2">
                     Aucune donnée
