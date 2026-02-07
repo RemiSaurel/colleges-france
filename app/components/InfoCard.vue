@@ -149,9 +149,9 @@ const cardSubtitle = computed(() => {
 </script>
 
 <template>
-  <div class="bg-white border border-zinc-200/90 rounded-xl overflow-hidden">
+  <div class="bg-white border border-zinc-200/90 rounded-xl overflow-hidden flex flex-col max-h-[calc(100vh-2rem)]">
     <!-- Header -->
-    <div class="flex items-start justify-between gap-2 px-5 py-4 border-b border-zinc-200/90 bg-linear-to-b from-zinc-50/50 to-white">
+    <div class="flex items-start justify-between gap-2 px-5 py-4 border-b border-zinc-200/90 bg-linear-to-b from-zinc-50/50 to-white shrink-0">
       <div class="min-w-0 flex-1">
         <h3 class="font-bold text-base truncate text-zinc-900">
           {{ cardTitle }}
@@ -174,462 +174,465 @@ const cardSubtitle = computed(() => {
       </div>
     </div>
 
-    <!-- Tabs -->
-    <motion.div
-      :initial="false"
-      :animate="{
-        height: props.minimized ? 0 : 'auto',
-        opacity: props.minimized ? 0 : 1,
-      }"
-      :transition="{
-        height: {
-          type: 'spring',
-          stiffness: 300,
-          damping: 30,
-        },
-        opacity: {
-          duration: 0.2,
-        },
-      }"
-      style="overflow: hidden"
-    >
-      <UTabs
-        v-model="activeTab"
-        :items="tabItems"
-        color="neutral"
-        class="w-full gap-0"
-        variant="link"
-        :unmount-on-hide="false"
-        :ui="{ list: 'rounded-none' }"
+    <!-- Content area with scrollable content -->
+    <div class="flex-1 overflow-hidden">
+      <!-- Tabs -->
+      <motion.div
+        :initial="false"
+        :animate="{
+          height: props.minimized ? 0 : 'auto',
+          opacity: props.minimized ? 0 : 1,
+        }"
+        :transition="{
+          height: {
+            type: 'spring',
+            stiffness: 300,
+            damping: 30,
+          },
+          opacity: {
+            duration: 0.2,
+          },
+        }"
+        style="overflow: hidden"
       >
-        <!-- Deselect button in tab list trailing slot -->
-        <template #list-trailing>
-          <UButton
-            v-if="college"
-            icon="i-lucide-x"
-            color="neutral"
-            variant="ghost"
-            size="xs"
-            square
-            aria-label="Désélectionner le collège"
-            @click="onDeselectCollege"
-          />
-        </template>
+        <UTabs
+          v-model="activeTab"
+          :items="tabItems"
+          color="neutral"
+          class="w-full gap-0"
+          variant="link"
+          :unmount-on-hide="false"
+          :ui="{ list: 'rounded-none', content: 'flex-1 overflow-y-auto px-4 py-2 max-h-[calc(100vh-2rem-4.5rem)]' }"
+        >
+          <!-- Deselect button in tab list trailing slot -->
+          <template #list-trailing>
+            <UButton
+              v-if="college"
+              icon="i-lucide-x"
+              color="neutral"
+              variant="ghost"
+              size="xs"
+              square
+              aria-label="Désélectionner le collège"
+              @click="onDeselectCollege"
+            />
+          </template>
 
-        <!-- Stats Tab Content -->
-        <template #stats>
-          <div class="p-4 space-y-4">
-            <!-- Main Stats Row - College Count (2/3) + Highlight Button (1/3) -->
-            <div class="grid grid-cols-3 gap-2">
-              <!-- College Count Card (takes 2 columns) -->
-              <div
-                class="col-span-2 relative p-3 rounded-xl bg-linear-to-br from-zinc-50 to-white border border-zinc-200/60 group/card hover:border-zinc-300/80 transition-all duration-300"
-              >
-                <div class="flex items-center gap-2 mb-2">
-                  <div class="w-6 h-6 rounded-lg bg-zinc-100 flex items-center justify-center">
-                    <UIcon
-                      name="i-lucide-school"
-                      class="w-3 h-3 text-zinc-500"
-                    />
-                  </div>
-                  <span class="text-[10px] uppercase tracking-wider text-zinc-500 font-medium">Total</span>
-                </div>
-                <div class="text-3xl font-bold text-zinc-900 tracking-tight">
-                  <AnimatedNumber :value="count" :decimals="0" />
-                </div>
-                <div class="text-xs text-zinc-500 mt-1">
-                  Collèges
-                </div>
-              </div>
-
-              <!-- Highlight Button (takes 1 column) -->
-              <div class="flex items-stretch">
-                <UButton
-                  icon="i-lucide-scan"
-                  color="neutral"
-                  variant="soft"
-                  size="xl"
-                  class="w-full h-full flex flex-col items-center justify-center text-sm rounded-xl"
-                  aria-label="Localiser les collèges filtrés"
-                  @click="onHighlight"
+          <!-- Stats Tab Content -->
+          <template #stats>
+            <div class="space-y-4">
+              <!-- Main Stats Row - College Count (2/3) + Highlight Button (1/3) -->
+              <div class="grid grid-cols-3 gap-2">
+                <!-- College Count Card (takes 2 columns) -->
+                <div
+                  class="col-span-2 relative p-3 rounded-xl bg-linear-to-br from-zinc-50 to-white border border-zinc-200/60 group/card hover:border-zinc-300/80 transition-all duration-300"
                 >
-                  Localiser les collèges
-                </UButton>
-              </div>
-            </div>
-
-            <!-- IPS Section -->
-            <div
-              class="relative p-3 rounded-xl overflow-hidden border"
-              :style="{
-                background: avgIps ? `linear-gradient(to bottom right, ${rgbToRgba(ipsColorValue, 0.15)}, ${rgbToRgba(ipsColorValue, 0.35)})` : 'linear-gradient(to bottom right, #fafafa, #ffffff)',
-                borderColor: avgIps ? rgbToRgba(ipsColorValue, 0.5) : '#e4e4e7',
-              }"
-            >
-              <!-- Background glow effect -->
-              <div
-                class="absolute -right-10 -top-10 w-32 h-32 rounded-full blur-3xl opacity-40"
-                :style="{ backgroundColor: ipsColorValue }"
-              />
-
-              <div class="relative">
-                <div class="flex items-center justify-between mb-3 w-full">
-                  <div class="flex items-center gap-2 flex-1">
-                    <div
-                      class="w-6 h-6 rounded-lg bg-white/60 backdrop-blur flex items-center justify-center"
-                    >
+                  <div class="flex items-center gap-2 mb-2">
+                    <div class="w-6 h-6 rounded-lg bg-zinc-100 flex items-center justify-center">
                       <UIcon
-                        name="i-lucide-bar-chart-2"
-                        class="w-3 h-3"
-                        :style="{ color: ipsColorValue }"
+                        name="i-lucide-school"
+                        class="w-3 h-3 text-zinc-500"
                       />
                     </div>
-                    <span class="text-[10px] uppercase tracking-wider text-zinc-600 font-medium">Indice de Position Sociale</span>
+                    <span class="text-[10px] uppercase tracking-wider text-zinc-500 font-medium">Total</span>
                   </div>
-                  <UTooltip
-                    text="Indicateur synthétique de la position sociale des élèves"
-                    :content="{ side: 'top' }"
-                  >
-                    <NuxtLink
-                      to="/about"
-                      class="text-zinc-700 hover:text-zinc-500 transition-colors"
-                    >
-                      <UIcon
-                        name="i-lucide-help-circle"
-                        class="w-3.5 h-3.5"
-                      />
-                    </NuxtLink>
-                  </UTooltip>
+                  <div class="text-3xl font-bold text-zinc-900 tracking-tight">
+                    <AnimatedNumber :value="count" :decimals="0" />
+                  </div>
+                  <div class="text-xs text-zinc-500 mt-1">
+                    Collèges
+                  </div>
                 </div>
 
-                <div class="flex items-baseline gap-2">
-                  <span
-                    class="text-4xl font-bold tracking-tight"
-                    :style="{ color: ipsColorValue }"
+                <!-- Highlight Button (takes 1 column) -->
+                <div class="flex items-stretch">
+                  <UButton
+                    icon="i-lucide-scan"
+                    color="neutral"
+                    variant="soft"
+                    size="xl"
+                    class="w-full h-full flex flex-col items-center justify-center text-sm rounded-xl"
+                    aria-label="Localiser les collèges filtrés"
+                    @click="onHighlight"
                   >
-                    <template v-if="avgIps">
-                      <AnimatedNumber :value="avgIps" :decimals="0" />
-                    </template>
-                    <template v-else>
-                      –
-                    </template>
-                  </span>
-                  <span class="text-sm text-zinc-500">en moyenne</span>
-                </div>
-
-                <div class="mt-3 flex items-center gap-1 text-sm">
-                  <span class="text-zinc-600">Plage :</span>
-                  <span
-                    v-if="minIps && maxIps"
-                    class="font-semibold text-zinc-900"
-                  >
-                    <AnimatedNumber :value="minIps" :decimals="0" /> – <AnimatedNumber :value="maxIps" :decimals="0" />
-                  </span>
-                  <span
-                    v-else
-                    class="text-zinc-400"
-                  >–</span>
+                    Localiser les collèges
+                  </UButton>
                 </div>
               </div>
-            </div>
 
-            <!-- DNB Stats -->
-            <div
-              v-if="hasDnbData"
-              class="space-y-3"
-            >
-              <div class="flex items-center gap-2">
-                <div class="h-px flex-1 bg-zinc-200" />
-                <span class="text-[10px] uppercase tracking-wider text-zinc-500 font-medium">Résultats DNB 2024</span>
-                <div class="h-px flex-1 bg-zinc-200" />
-              </div>
-
-              <!-- Secondary info: colleges with DNB data -->
-              <div class="flex items-center justify-center gap-2 text-xs text-zinc-500">
-                <UIcon
-                  name="i-lucide-graduation-cap"
-                  class="w-3.5 h-3.5"
-                />
-                <span><AnimatedNumber :value="countWithDnb" :decimals="0" /> collèges avec données DNB (<AnimatedNumber :value="dnbPercentage" :decimals="0" />%)</span>
-              </div>
-
-              <div class="grid grid-cols-2 gap-3">
-                <!-- Réussite -->
+              <!-- IPS Section -->
+              <div
+                class="relative p-3 rounded-xl overflow-hidden border"
+                :style="{
+                  background: avgIps ? `linear-gradient(to bottom right, ${rgbToRgba(ipsColorValue, 0.15)}, ${rgbToRgba(ipsColorValue, 0.35)})` : 'linear-gradient(to bottom right, #fafafa, #ffffff)',
+                  borderColor: avgIps ? rgbToRgba(ipsColorValue, 0.5) : '#e4e4e7',
+                }"
+              >
+                <!-- Background glow effect -->
                 <div
-                  class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all"
-                >
-                  <div v-if="avgReussite !== null" class="text-3xl font-bold text-zinc-900">
-                    <AnimatedNumber :value="avgReussite!" :decimals="0" /><span class="text-lg">%</span>
+                  class="absolute -right-10 -top-10 w-32 h-32 rounded-full blur-3xl opacity-40"
+                  :style="{ backgroundColor: ipsColorValue }"
+                />
+
+                <div class="relative">
+                  <div class="flex items-center justify-between mb-3 w-full">
+                    <div class="flex items-center gap-2 flex-1">
+                      <div
+                        class="w-6 h-6 rounded-lg bg-white/60 backdrop-blur flex items-center justify-center"
+                      >
+                        <UIcon
+                          name="i-lucide-bar-chart-2"
+                          class="w-3 h-3"
+                          :style="{ color: ipsColorValue }"
+                        />
+                      </div>
+                      <span class="text-[10px] uppercase tracking-wider text-zinc-600 font-medium">Indice de Position Sociale</span>
+                    </div>
+                    <UTooltip
+                      text="Indicateur synthétique de la position sociale des élèves"
+                      :content="{ side: 'top' }"
+                    >
+                      <NuxtLink
+                        to="/about"
+                        class="text-zinc-700 hover:text-zinc-500 transition-colors"
+                      >
+                        <UIcon
+                          name="i-lucide-help-circle"
+                          class="w-3.5 h-3.5"
+                        />
+                      </NuxtLink>
+                    </UTooltip>
                   </div>
-                  <div v-else class="text-sm text-zinc-400 py-2">
-                    Aucune donnée
+
+                  <div class="flex items-baseline gap-2">
+                    <span
+                      class="text-4xl font-bold tracking-tight"
+                      :style="{ color: ipsColorValue }"
+                    >
+                      <template v-if="avgIps">
+                        <AnimatedNumber :value="avgIps" :decimals="0" />
+                      </template>
+                      <template v-else>
+                        –
+                      </template>
+                    </span>
+                    <span class="text-sm text-zinc-500">en moyenne</span>
                   </div>
-                  <div class="text-xs uppercase tracking-wider text-zinc-500 mt-2">
-                    Réussite
+
+                  <div class="mt-3 flex items-center gap-1 text-sm">
+                    <span class="text-zinc-600">Plage :</span>
+                    <span
+                      v-if="minIps && maxIps"
+                      class="font-semibold text-zinc-900"
+                    >
+                      <AnimatedNumber :value="minIps" :decimals="0" /> – <AnimatedNumber :value="maxIps" :decimals="0" />
+                    </span>
+                    <span
+                      v-else
+                      class="text-zinc-400"
+                    >–</span>
                   </div>
                 </div>
+              </div>
 
-                <!-- Valeur Ajoutée -->
-                <UTooltip
-                  text="Différence entre résultats obtenus et attendus"
-                  :content="{ side: 'bottom' }"
-                >
+              <!-- DNB Stats -->
+              <div
+                v-if="hasDnbData"
+                class="space-y-3"
+              >
+                <div class="flex items-center gap-2">
+                  <div class="h-px flex-1 bg-zinc-200" />
+                  <span class="text-[10px] uppercase tracking-wider text-zinc-500 font-medium">Résultats DNB 2024</span>
+                  <div class="h-px flex-1 bg-zinc-200" />
+                </div>
+
+                <!-- Secondary info: colleges with DNB data -->
+                <div class="flex items-center justify-center gap-2 text-xs text-zinc-500">
+                  <UIcon
+                    name="i-lucide-graduation-cap"
+                    class="w-3.5 h-3.5"
+                  />
+                  <span><AnimatedNumber :value="countWithDnb" :decimals="0" /> collèges avec données DNB (<AnimatedNumber :value="dnbPercentage" :decimals="0" />%)</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <!-- Réussite -->
                   <div
-                    class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all cursor-help"
-                    :class="{
-                      'bg-emerald-50/50 border-emerald-200/40': avgValeurAjoutee !== null && avgValeurAjoutee !== undefined && avgValeurAjoutee > 2,
-                      'bg-red-50/50 border-red-200/40': avgValeurAjoutee !== null && avgValeurAjoutee !== undefined && avgValeurAjoutee < -2,
-                    }"
+                    class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all"
                   >
-                    <div
-                      v-if="avgValeurAjoutee === null || avgValeurAjoutee === undefined"
-                      class="text-sm text-zinc-400 py-2"
-                    >
+                    <div v-if="avgReussite !== null" class="text-3xl font-bold text-zinc-900">
+                      <AnimatedNumber :value="avgReussite!" :decimals="0" /><span class="text-lg">%</span>
+                    </div>
+                    <div v-else class="text-sm text-zinc-400 py-2">
                       Aucune donnée
                     </div>
-                    <div
-                      v-else
-                      class="text-3xl font-bold"
-                      :class="{
-                        'text-emerald-600': avgValeurAjoutee > 2,
-                        'text-red-600': avgValeurAjoutee < -2,
-                        'text-zinc-900': avgValeurAjoutee >= -2 && avgValeurAjoutee <= 2,
-                      }"
-                    >
-                      {{ avgValeurAjoutee > 0 ? '+' : '' }}<AnimatedNumber :value="avgValeurAjoutee" :decimals="1" />
-                    </div>
-
-                    <div class="text-xs uppercase tracking-wider text-zinc-500 mt-2 ">
-                      VA
-                    </div>
-                  </div>
-                </UTooltip>
-
-                <!-- Note Écrit -->
-                <div
-                  class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all"
-                >
-                  <div v-if="avgNoteEcrit !== null" class="text-3xl font-bold text-zinc-900">
-                    <AnimatedNumber :value="avgNoteEcrit!" :decimals="1" /><span class="text-lg">/20</span>
-                  </div>
-                  <div v-else class="text-sm text-zinc-400 py-2">
-                    Aucune donnée
-                  </div>
-                  <div class="text-xs uppercase tracking-wider text-zinc-500 mt-2">
-                    Moyenne
-                  </div>
-                </div>
-
-                <!-- Candidats -->
-                <div
-                  class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all"
-                >
-                  <div v-if="totalCandidats !== null && totalCandidats > 0" class="text-3xl font-bold text-zinc-900">
-                    <AnimatedNumber :value="totalCandidats" :decimals="0" />
-                  </div>
-                  <div v-else class="text-sm text-zinc-400 py-2">
-                    Aucune donnée
-                  </div>
-                  <div class="text-xs uppercase tracking-wider text-zinc-500 mt-2">
-                    Candidats
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </template>
-
-        <!-- College Tab Content -->
-        <template #college>
-          <div class="p-4 space-y-4">
-            <!-- Warning when college doesn't match filters -->
-            <div
-              v-if="!collegeMatchesFilters"
-              class="flex items-center gap-2 px-2 py-1 rounded-md bg-amber-50 border border-amber-200"
-            >
-              <UIcon
-                name="i-lucide-alert-circle"
-                class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"
-              />
-              <p class="text-xs text-amber-700">
-                Ce collège ne correspond pas aux filtres actuels
-              </p>
-            </div>
-
-            <!-- Secteur badges -->
-            <div
-              v-if="college"
-              class="flex items-center justify-between gap-2 text-xs"
-            >
-              <span
-                v-if="p!.academie"
-                class="text-zinc-500"
-              >
-                Académie : {{ p!.academie }}
-              </span>
-              <span
-                class="inline-flex items-center px-2 py-0.5 rounded-md font-medium bg-zinc-50 text-zinc-700"
-                :class="p!.secteur === 'public' ? '' : 'bg-amber-50 text-amber-700'"
-              >
-                {{ p!.secteur === 'public' ? 'Public' : 'Privé' }}
-              </span>
-            </div>
-
-            <!-- IPS Section -->
-            <div
-              v-if="college"
-              class="flex gap-4 items-center"
-            >
-              <!-- IPS Value -->
-              <div class="shrink-0">
-                <div class="flex flex-col items-center mb-3">
-                  <span class="text-xs text-zinc-500">IPS</span>
-                  <span
-                    class="text-4xl font-bold"
-                    :style="{ color: ipsColor(p!.ips) }"
-                  >
-                    {{ formatFr(p!.ips, 0) }}
-                  </span>
-                </div>
-                <div class="flex flex-col gap-2 text-xs text-zinc-500">
-                  <span> Ecart-type : {{ formatFr(p!.ecart_type_ips, 1) }}</span>
-                </div>
-              </div>
-
-              <!-- IPS Histogram -->
-              <div class="flex-1 min-w-0">
-                <IpsHistogram
-                  :features="filteredFeatures"
-                  :selected-ips="p!.ips"
-                />
-              </div>
-            </div>
-
-            <!-- DNB Results -->
-            <template v-if="college && p!.taux_reussite !== null">
-              <div class="pt-4 border-t border-zinc-200/80">
-                <h4 class="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-3">
-                  DNB 2024
-                </h4>
-
-                <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-                  <div>
-                    <div class="text-xl font-bold">
-                      {{ formatFr(p!.taux_reussite!, 0) }}%
-                    </div>
-                    <div class="text-xs text-zinc-500">
+                    <div class="text-xs uppercase tracking-wider text-zinc-500 mt-2">
                       Réussite
                     </div>
                   </div>
-                  <div v-if="vaLabel">
+
+                  <!-- Valeur Ajoutée -->
+                  <UTooltip
+                    text="Différence entre résultats obtenus et attendus"
+                    :content="{ side: 'bottom' }"
+                  >
                     <div
-                      class="text-xl font-bold"
-                      :class="vaLabel.color"
+                      class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all cursor-help"
+                      :class="{
+                        'bg-emerald-50/50 border-emerald-200/40': avgValeurAjoutee !== null && avgValeurAjoutee !== undefined && avgValeurAjoutee > 2,
+                        'bg-red-50/50 border-red-200/40': avgValeurAjoutee !== null && avgValeurAjoutee !== undefined && avgValeurAjoutee < -2,
+                      }"
                     >
-                      {{ vaLabel.text }}
-                    </div>
-                    <UTooltip
-                      text="Différence entre résultats obtenus et attendus selon le profil des élèves"
-                      :content="{ side: 'bottom', align: 'center', sideOffset: 4 }"
-                    >
-                      <div class="text-xs text-zinc-500 flex items-center gap-1 cursor-help">
-                        Valeur ajoutée
-                        <UIcon
-                          name="i-lucide-help-circle"
-                          class="w-3 h-3"
-                        />
+                      <div
+                        v-if="avgValeurAjoutee === null || avgValeurAjoutee === undefined"
+                        class="text-sm text-zinc-400 py-2"
+                      >
+                        Aucune donnée
                       </div>
-                    </UTooltip>
+                      <div
+                        v-else
+                        class="text-3xl font-bold"
+                        :class="{
+                          'text-emerald-600': avgValeurAjoutee > 2,
+                          'text-red-600': avgValeurAjoutee < -2,
+                          'text-zinc-900': avgValeurAjoutee >= -2 && avgValeurAjoutee <= 2,
+                        }"
+                      >
+                        {{ avgValeurAjoutee > 0 ? '+' : '' }}<AnimatedNumber :value="avgValeurAjoutee" :decimals="1" />
+                      </div>
+
+                      <div class="text-xs uppercase tracking-wider text-zinc-500 mt-2 ">
+                        VA
+                      </div>
+                    </div>
+                  </UTooltip>
+
+                  <!-- Note Écrit -->
+                  <div
+                    class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all"
+                  >
+                    <div v-if="avgNoteEcrit !== null" class="text-3xl font-bold text-zinc-900">
+                      <AnimatedNumber :value="avgNoteEcrit!" :decimals="1" /><span class="text-lg">/20</span>
+                    </div>
+                    <div v-else class="text-sm text-zinc-400 py-2">
+                      Aucune donnée
+                    </div>
+                    <div class="text-xs uppercase tracking-wider text-zinc-500 mt-2">
+                      Moyenne
+                    </div>
                   </div>
-                  <div v-if="p!.note_ecrit !== null">
-                    <div class="text-xl font-bold">
-                      {{ formatFr(p!.note_ecrit!, 1) }}
+
+                  <!-- Candidats -->
+                  <div
+                    class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all"
+                  >
+                    <div v-if="totalCandidats !== null && totalCandidats > 0" class="text-3xl font-bold text-zinc-900">
+                      <AnimatedNumber :value="totalCandidats" :decimals="0" />
                     </div>
-                    <div class="text-xs text-zinc-500">
-                      Note écrit /20
+                    <div v-else class="text-sm text-zinc-400 py-2">
+                      Aucune donnée
                     </div>
-                  </div>
-                  <div v-if="p!.nb_candidats !== null">
-                    <div class="text-xl font-bold">
-                      {{ p!.nb_candidats }}
-                    </div>
-                    <div class="text-xs text-zinc-500">
+                    <div class="text-xs uppercase tracking-wider text-zinc-500 mt-2">
                       Candidats
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
+          </template>
 
-              <!-- Mentions bar -->
+          <!-- College Tab Content -->
+          <template #college>
+            <div class="space-y-4">
+              <!-- Warning when college doesn't match filters -->
               <div
-                v-if="mentionsPct"
+                v-if="!collegeMatchesFilters"
+                class="flex items-center gap-2 px-2 py-1 rounded-md bg-amber-50 border border-amber-200"
               >
-                <div class="text-xs font-medium text-zinc-500 mb-2">
-                  Mentions
-                </div>
-                <div class="flex h-2 rounded-full overflow-hidden">
-                  <div
-                    class="bg-zinc-300"
-                    :style="{ width: `${mentionsPct.sans}%` }"
-                    :title="`Sans: ${mentionsPct.sans.toFixed(1)}%`"
-                  />
-                  <div
-                    class="bg-amber-400"
-                    :style="{ width: `${mentionsPct.ab}%` }"
-                    :title="`AB: ${mentionsPct.ab.toFixed(1)}%`"
-                  />
-                  <div
-                    class="bg-blue-500"
-                    :style="{ width: `${mentionsPct.b}%` }"
-                    :title="`B: ${mentionsPct.b.toFixed(1)}%`"
-                  />
-                  <div
-                    class="bg-emerald-500"
-                    :style="{ width: `${mentionsPct.tb}%` }"
-                    :title="`TB: ${mentionsPct.tb.toFixed(1)}%`"
-                  />
-                </div>
-                <div class="flex gap-3 mt-2 text-[10px] text-zinc-500">
-                  <span class="flex items-center gap-1">
-                    <span class="inline-block w-2 h-2 rounded-full bg-zinc-300" />Sans
-                  </span>
-                  <span class="flex items-center gap-1">
-                    <span class="inline-block w-2 h-2 rounded-full bg-amber-400" />AB
-                  </span>
-                  <span class="flex items-center gap-1">
-                    <span class="inline-block w-2 h-2 rounded-full bg-blue-500" />B
-                  </span>
-                  <span class="flex items-center gap-1">
-                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-500" />TB
-                  </span>
-                </div>
-              </div>
-            </template>
-
-            <template v-else-if="college">
-              <div class="pt-4 border-t border-zinc-200/80">
-                <p class="text-xs text-zinc-400 italic">
-                  Résultats DNB 2024 non disponibles pour cet établissement.
+                <UIcon
+                  name="i-lucide-alert-circle"
+                  class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"
+                />
+                <p class="text-xs text-amber-700">
+                  Ce collège ne correspond pas aux filtres actuels
                 </p>
               </div>
-            </template>
 
-            <!-- No college selected message -->
-            <div
-              v-if="!college"
-              class="text-center py-8 text-zinc-400"
-            >
-              <UIcon
-                name="i-lucide-building-2"
-                class="w-12 h-12 mx-auto mb-2 text-zinc-300"
-              />
-              <p class="text-sm">
-                Sélectionnez un collège sur la carte
-              </p>
+              <!-- Secteur badges -->
+              <div
+                v-if="college"
+                class="flex items-center justify-between gap-2 text-xs"
+              >
+                <span
+                  v-if="p!.academie"
+                  class="text-zinc-500"
+                >
+                  Académie : {{ p!.academie }}
+                </span>
+                <span
+                  class="inline-flex items-center px-2 py-0.5 rounded-md font-medium bg-zinc-50 text-zinc-700"
+                  :class="p!.secteur === 'public' ? '' : 'bg-amber-50 text-amber-700'"
+                >
+                  {{ p!.secteur === 'public' ? 'Public' : 'Privé' }}
+                </span>
+              </div>
+
+              <!-- IPS Section -->
+              <div
+                v-if="college"
+                class="flex gap-4 items-center"
+              >
+                <!-- IPS Value -->
+                <div class="shrink-0">
+                  <div class="flex flex-col items-center mb-3">
+                    <span class="text-xs text-zinc-500">IPS</span>
+                    <span
+                      class="text-4xl font-bold"
+                      :style="{ color: ipsColor(p!.ips) }"
+                    >
+                      {{ formatFr(p!.ips, 0) }}
+                    </span>
+                  </div>
+                  <div class="flex flex-col gap-2 text-xs text-zinc-500">
+                    <span> Ecart-type : {{ formatFr(p!.ecart_type_ips, 1) }}</span>
+                  </div>
+                </div>
+
+                <!-- IPS Histogram -->
+                <div class="flex-1 min-w-0">
+                  <IpsHistogram
+                    :features="filteredFeatures"
+                    :selected-ips="p!.ips"
+                  />
+                </div>
+              </div>
+
+              <!-- DNB Results -->
+              <template v-if="college && p!.taux_reussite !== null">
+                <div class="pt-4 border-t border-zinc-200/80">
+                  <h4 class="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-3">
+                    DNB 2024
+                  </h4>
+
+                  <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+                    <div>
+                      <div class="text-xl font-bold">
+                        {{ formatFr(p!.taux_reussite!, 0) }}%
+                      </div>
+                      <div class="text-xs text-zinc-500">
+                        Réussite
+                      </div>
+                    </div>
+                    <div v-if="vaLabel">
+                      <div
+                        class="text-xl font-bold"
+                        :class="vaLabel.color"
+                      >
+                        {{ vaLabel.text }}
+                      </div>
+                      <UTooltip
+                        text="Différence entre résultats obtenus et attendus selon le profil des élèves"
+                        :content="{ side: 'bottom', align: 'center', sideOffset: 4 }"
+                      >
+                        <div class="text-xs text-zinc-500 flex items-center gap-1 cursor-help">
+                          Valeur ajoutée
+                          <UIcon
+                            name="i-lucide-help-circle"
+                            class="w-3 h-3"
+                          />
+                        </div>
+                      </UTooltip>
+                    </div>
+                    <div v-if="p!.note_ecrit !== null">
+                      <div class="text-xl font-bold">
+                        {{ formatFr(p!.note_ecrit!, 1) }}
+                      </div>
+                      <div class="text-xs text-zinc-500">
+                        Note écrit /20
+                      </div>
+                    </div>
+                    <div v-if="p!.nb_candidats !== null">
+                      <div class="text-xl font-bold">
+                        {{ p!.nb_candidats }}
+                      </div>
+                      <div class="text-xs text-zinc-500">
+                        Candidats
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Mentions bar -->
+                <div
+                  v-if="mentionsPct"
+                >
+                  <div class="text-xs font-medium text-zinc-500 mb-2">
+                    Mentions
+                  </div>
+                  <div class="flex h-2 rounded-full overflow-hidden">
+                    <div
+                      class="bg-zinc-300"
+                      :style="{ width: `${mentionsPct.sans}%` }"
+                      :title="`Sans: ${mentionsPct.sans.toFixed(1)}%`"
+                    />
+                    <div
+                      class="bg-amber-400"
+                      :style="{ width: `${mentionsPct.ab}%` }"
+                      :title="`AB: ${mentionsPct.ab.toFixed(1)}%`"
+                    />
+                    <div
+                      class="bg-blue-500"
+                      :style="{ width: `${mentionsPct.b}%` }"
+                      :title="`B: ${mentionsPct.b.toFixed(1)}%`"
+                    />
+                    <div
+                      class="bg-emerald-500"
+                      :style="{ width: `${mentionsPct.tb}%` }"
+                      :title="`TB: ${mentionsPct.tb.toFixed(1)}%`"
+                    />
+                  </div>
+                  <div class="flex gap-3 mt-2 text-[10px] text-zinc-500">
+                    <span class="flex items-center gap-1">
+                      <span class="inline-block w-2 h-2 rounded-full bg-zinc-300" />Sans
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <span class="inline-block w-2 h-2 rounded-full bg-amber-400" />AB
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <span class="inline-block w-2 h-2 rounded-full bg-blue-500" />B
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <span class="inline-block w-2 h-2 rounded-full bg-emerald-500" />TB
+                    </span>
+                  </div>
+                </div>
+              </template>
+
+              <template v-else-if="college">
+                <div class="pt-4 border-t border-zinc-200/80">
+                  <p class="text-xs text-zinc-400 italic">
+                    Résultats DNB 2024 non disponibles pour cet établissement.
+                  </p>
+                </div>
+              </template>
+
+              <!-- No college selected message -->
+              <div
+                v-if="!college"
+                class="text-center py-8 text-zinc-400"
+              >
+                <UIcon
+                  name="i-lucide-building-2"
+                  class="w-12 h-12 mx-auto mb-2 text-zinc-300"
+                />
+                <p class="text-sm">
+                  Sélectionnez un collège sur la carte
+                </p>
+              </div>
             </div>
-          </div>
-        </template>
-      </UTabs>
-    </motion.div>
+          </template>
+        </UTabs>
+      </motion.div>
+    </div>
   </div>
 </template>

@@ -21,6 +21,12 @@ export function useColleges() {
 
   const selectedCollege = ref<CollegeFeature | null>(null);
 
+  // Comparison state - stores up to 2 colleges for head-to-head comparison
+  const comparisonColleges = ref<CollegeFeature[]>([]);
+
+  // Comparison mode - whether comparison panel is open and ready to receive selections
+  const comparisonModeEnabled = ref(false);
+
   // Check if any DNB filter is active
   const hasDnbFilters = computed(() => {
     return filters.tauxReussiteRange !== null
@@ -38,6 +44,11 @@ export function useColleges() {
       || filters.search !== ""
       || hasDnbFilters.value;
   });
+
+  // Comparison computed properties
+  const canAddToComparison = computed(() => comparisonColleges.value.length < 2);
+  const hasComparison = computed(() => comparisonColleges.value.length === 2);
+  const isInComparison = (uai: string) => comparisonColleges.value.some(c => c.properties.uai === uai);
 
   const filteredFeatures = computed(() => {
     if (!data.value?.features)
@@ -159,6 +170,38 @@ export function useColleges() {
 
   function selectCollege(feature: CollegeFeature | null) {
     selectedCollege.value = feature;
+
+    // Comparison mode: If comparison panel is open, add colleges to comparison
+    if (feature && comparisonModeEnabled.value && !isInComparison(feature.properties.uai)) {
+      addToComparison(feature);
+      return;
+    }
+
+    // Auto-add to comparison UX: If there's already 1 college in comparison
+    // and we're selecting a different college, add it automatically
+    if (feature
+      && comparisonColleges.value.length === 1
+      && !isInComparison(feature.properties.uai)
+    ) {
+      addToComparison(feature);
+    }
+  }
+
+  // Comparison actions
+  function addToComparison(college: CollegeFeature) {
+    if (comparisonColleges.value.length >= 2)
+      return;
+    if (isInComparison(college.properties.uai))
+      return;
+    comparisonColleges.value.push(college);
+  }
+
+  function removeFromComparison(uai: string) {
+    comparisonColleges.value = comparisonColleges.value.filter(c => c.properties.uai !== uai);
+  }
+
+  function clearComparison() {
+    comparisonColleges.value = [];
   }
 
   function resetFilters() {
@@ -187,5 +230,14 @@ export function useColleges() {
     hasNonRegionFilters,
     selectCollege,
     resetFilters,
+    // Comparison
+    comparisonColleges,
+    comparisonModeEnabled,
+    canAddToComparison,
+    hasComparison,
+    isInComparison,
+    addToComparison,
+    removeFromComparison,
+    clearComparison,
   };
 }

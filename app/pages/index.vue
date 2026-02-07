@@ -11,12 +11,36 @@ const {
   hasNonRegionFilters,
   selectCollege,
   resetFilters,
+  // Comparison
+  comparisonColleges,
+  comparisonModeEnabled,
+  canAddToComparison,
+  hasComparison: _hasComparison,
+  isInComparison,
+  addToComparison,
+  removeFromComparison,
+  clearComparison,
 } = useColleges();
 
 const sidebarOpen = ref(true);
 const isLargeScreen = ref(false);
 const cardMinimized = ref(false); // Toggle minimize/maximize card
 const collegeMapRef = ref<{ highlightFilteredColleges: () => void } | null>(null);
+const comparisonPanelOpen = ref(false); // Whether comparison panel is visible
+
+// Sync comparison mode with panel open state
+watch(comparisonPanelOpen, (isOpen) => {
+  comparisonModeEnabled.value = isOpen && comparisonColleges.value.length < 2;
+});
+
+// Disable comparison mode when comparison is cleared
+watch(() => comparisonColleges.value.length, (length) => {
+  if (length === 0) {
+    comparisonModeEnabled.value = comparisonPanelOpen.value;
+  } else if (length === 2) {
+    comparisonModeEnabled.value = false;
+  }
+});
 
 onMounted(() => {
   const checkScreenSize = () => {
@@ -37,6 +61,18 @@ function toggleCardMinimized() {
 
 function handleHighlight() {
   collegeMapRef.value?.highlightFilteredColleges();
+}
+
+function handleAddToComparison() {
+  if (selectedCollege.value) {
+    addToComparison(selectedCollege.value);
+  }
+}
+
+function handleRemoveFromComparison() {
+  if (selectedCollege.value) {
+    removeFromComparison(selectedCollege.value.properties.uai);
+  }
 }
 </script>
 
@@ -230,8 +266,40 @@ function handleHighlight() {
           :on-toggle-minimized="toggleCardMinimized"
           :on-deselect-college="deselectCollege"
           :on-highlight="handleHighlight"
+          :can-add-to-comparison="canAddToComparison"
+          :is-in-comparison="selectedCollege ? isInComparison(selectedCollege.properties.uai) : false"
+          :on-add-to-comparison="handleAddToComparison"
+          :on-remove-from-comparison="handleRemoveFromComparison"
+        />
+
+        <!-- Comparison Toggle Button -->
+        <ComparisonToggle
+          :is-open="comparisonPanelOpen"
+          :count="comparisonColleges.length"
+          @toggle="comparisonPanelOpen = !comparisonPanelOpen"
         />
       </div>
+
+      <!-- Comparison Panel -->
+      <Transition name="slide-up">
+        <div
+          v-if="comparisonPanelOpen || comparisonColleges.length > 0"
+          class="absolute bottom-0 left-0 right-0 z-20 sm:left-4 sm:right-4 sm:bottom-4"
+        >
+          <div class="sm:max-w-2xl sm:mx-auto">
+            <CollegeComparison
+              :colleges="comparisonColleges"
+              :on-remove-college="removeFromComparison"
+              :on-clear-comparison="
+                () => {
+                  clearComparison();
+                  comparisonPanelOpen = false;
+                }
+              "
+            />
+          </div>
+        </div>
+      </Transition>
     </div>
   </div>
 </template>
@@ -253,6 +321,16 @@ function handleHighlight() {
 }
 .fade-enter-from,
 .fade-leave-to {
+  opacity: 0;
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.slide-up-enter-from,
+.slide-up-leave-to {
+  transform: translateY(100%);
   opacity: 0;
 }
 </style>
